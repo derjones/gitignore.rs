@@ -25,6 +25,10 @@ impl IgnoreFile {
     pub fn is_ignored<P: AsRef<Path>>(&self, path: P, is_dir: bool) -> bool {
         self.ruleset.is_ignored(path, is_dir)
     }
+
+    pub(crate) fn is_ignored_or_negated<P: AsRef<Path>>(&self, path: P, is_dir: bool) -> IgnoreResult {
+        self.ruleset.is_ignored_or_negated(path, is_dir)
+    }
 }
 
 #[cfg(test)]
@@ -39,7 +43,7 @@ mod test {
                 let root: PathBuf = cargo_root.join("tests/resources/fake_repo").to_path_buf();
                 let ignore: PathBuf = root.join($ignore_path).to_path_buf();
 
-                IgnoreFile::new(root, ignore).unwrap()
+                IgnoreFile::new(root, ignore)
             }
         };
     }
@@ -58,13 +62,14 @@ mod test {
     #[test]
     #[should_panic]
     fn fails_when_rules_invalid() {
-        ignore_file_from_test_repo!(".badgitignore");
+        let error = ignore_file_from_test_repo!(".badgitignore");
+        assert!(error.is_err());
     }
 
     #[test]
     fn returns_correctly_an_ignorefile_from_valid_file() {
-        let file = ignore_file_from_test_repo!(".gitignore");
+        let file = ignore_file_from_test_repo!(".gitignore").unwrap();
 
-        assert_eq!(file.ruleset.rules, ruleset_from_rules("*.no\nnot_me_either/\n/or_even_me").rules)
+        assert_eq!(file.ruleset.rules, ruleset_from_rules("*.no\nnot_me_either/\n/or_even_me\n!*.neg").rules)
     }
 }
