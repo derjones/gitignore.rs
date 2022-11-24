@@ -37,6 +37,6 @@ mod errors {
   }
 }
 
-mod ignore_file;
-mod repo;
-mod ruleset;
+pub mod ignore_file;
+pub mod repo;
+pub mod ruleset;
