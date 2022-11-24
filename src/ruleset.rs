@@ -125,7 +125,8 @@ impl RuleSet {
             pattern = pattern.trim_end_matches('/').trim();
         }
 
-        let absolute = pattern.starts_with('/');
+        // The pattern doc/frotz and /doc/frotz have the same effect in any .gitignore file. In other words, a leading slash is not relevant if there is already a middle slash in the pattern.
+        let absolute = pattern.contains('/');
         if absolute {
             pattern = pattern.trim_start_matches('/');
         }
